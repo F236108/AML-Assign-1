@@ -24,6 +24,8 @@ AML Assign-1/
 │   ├── regression.py                   # Task 4: Linear regression math from scratch
 │   └── train_eval.py                   # Task 4: Model training, evaluation & hyperparameter tuning
 ├── results/                            # Figures, model weights, and analysis
+│   ├── analysis.md                     # Task 5: Comprehensive analysis report
+│   ├── blog_post.md                    # Medium Blog Post draft
 │   ├── fig1_ac_vs_irradiation.png      # Plot 1: AC power vs Irradiation
 │   ├── fig2_module_vs_ambient.png      # Plot 2: Module vs Ambient Temp
 │   ├── fig3_ac_vs_dc.png               # Plot 3: AC vs DC power ratio
@@ -32,9 +34,12 @@ AML Assign-1/
 │   ├── fig6_learning_rate_batch_gd.png # Plot 6: Batch GD learning rate curves
 │   ├── fig7_learning_rate_sgd.png      # Plot 7: SGD learning rate curves
 │   ├── fig8_residuals_by_hour.png      # Plot 8: Residual analysis vs hour of day
+│   ├── fig9_actual_vs_predicted.png    # Plot 9: Actual vs Predicted power
+│   ├── fig11_project_poster.png        # Final Project Presentation Poster
+│   ├── linkedin_post.md                # LinkedIn announcement post
 │   ├── model_weights.json              # Exported weights & scaling stats for web app
-│   ├── regression_results.csv          # Complete model performance summary table
-│   └── analysis.md                     # Task 5: Comprehensive analysis report
+│   ├── project_poster.md               # Poster content and layout document
+│   └── regression_results.csv          # Complete model performance summary table
 ├── app/                                # Task 6: Web Application
 │   ├── index.html                      # Professional interactive web interface
 │   └── server.py                       # Local HTTP server script
@@ -94,3 +99,10 @@ Open your browser at **`http://localhost:8000`** to interact with the web app!
 1. **On-Site Sensors (Set A) achieve ~2.35% error** relative to peak plant capacity (~30 MW), compared to **~11.36% error for public weather data (Set B)**.
 2. **Module Temperature is Critical**: Panel efficiency drops as module temperature rises ($\theta_{\text{module\_temp}} \approx -108$).
 3. **Solver Equivalence**: Batch GD with $\alpha=0.1$ converges directly to the Normal Equation solution ($\max |\theta_{\text{Normal}} - \theta_{\text{BatchGD}}| < 17$).
+
+---
+
+## 📢 Publications & Presentation
+- **[Medium Blog Post](results/blog_post.md)**: A comprehensive data science walkthrough of our journey, predicting solar power output.
+- **[Project Poster](results/fig11_project_poster.png)**: A professional, print-ready academic poster summarizing our research, data pipeline, models, and conclusions.
+- **[LinkedIn Post](results/linkedin_post.md)**: A structured announcement for professional networks, sharing our findings and providing a link to this repository.

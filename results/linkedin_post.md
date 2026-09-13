@@ -4,7 +4,7 @@
 
 ---
 
-☀️ **Can we accurately forecast grid-scale Solar Power Generation strictly using weather data?**
+ **Can we accurately forecast grid-scale Solar Power Generation strictly using weather data?**
 
 As renewable energy expands across power grids worldwide, predicting photovoltaic (PV) generation hours in advance is critical for load balancing and grid stability. 
 

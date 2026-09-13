@@ -15,7 +15,7 @@ Here are our key findings and engineering takeaways:
 🔬 **Key Machine Learning & Physics Insights:**
 1. **On-Site Sensors vs. Public Weather APIs**: On-site weather sensors achieved an impressive **2.35% error rate** (704 kW Daytime RMSE), compared to **11.36% error** (3,409 kW Daytime RMSE) when using satellite reanalysis data (Open-Meteo API). Public satellite weather data incurs **nearly 4x higher prediction error** due to spatial grid coarseness (~10 km resolution).
 2. **Semiconductor Thermal Efficiency Penalty**: Our model automatically discovered the negative temperature coefficient of PV panels ($\theta_{\text{module\_temp}} = -108.12$). High module temperatures elevate thermal losses and drop output voltage.
-3. **Solver Equivalence**: Analytical Normal Equation $(X^T X)^{-1} X^T y$ provided exact global minimum weights instantaneously, while Batch Gradient Descent converged to the identical parameters within $\max |\Delta\theta| < 17$.
+3. **Solver Comparison**: The Analytical Normal Equation $(X^T X)^{-1} X^T y$ provided the exact global minimum instantaneously, while Batch Gradient Descent with $\alpha=10^{-3}$ made stable progress toward the same solution.
 4. **Interactive Enterprise Web App**: We exported the trained model weights into a modern web predictor with real-time Z-score transformations, diurnal solar curve visualizer, and capacity utilization gauges.
 
 ---

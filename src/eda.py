@@ -65,9 +65,9 @@ def plot_all():
     fig.savefig(os.path.join(RESULTS_DIR, "fig2_module_vs_ambient.png"), dpi=150)
     plt.close(fig)
     print("Plot 2 saved: fig2_module_vs_ambient.png")
-    print("  Commentary: Module temperature is always >= ambient temperature,")
-    print("  and the gap increases with irradiation. This matches physics:")
-    print("  sunlight heats the panels above the surrounding air.\n")
+    print("  Commentary: Module temperature generally rises above ambient")
+    print("  temperature under stronger irradiation, although nighttime readings")
+    print("  can be similar or lower. This matches solar heating behavior.\n")
 
     # ---- Plot 3: ac_power vs dc_power (scatter) ----
     fig, ax = plt.subplots(figsize=(8, 6))

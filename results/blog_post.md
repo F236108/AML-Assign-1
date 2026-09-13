@@ -109,7 +109,7 @@ All algorithms were implemented **from scratch using NumPy matrix operations**:
 | Feature Set | Solver Method | Train RMSE (kW) | Test RMSE (All 168 Hours) | Test RMSE (Daytime Hours Only) |
 |---|---|---|---|---|
 | **Set A (Sensors)** | **Normal Equation** | **537.62** | **539.46** | **704.46** |
-| **Set A (Sensors)** | **Batch GD** ($\alpha=0.001$, 500 iters) | **741.84** | **880.25** | **1,144.76** |
+| **Set A (Sensors)** | **Batch GD** ($\alpha=0.001$, 10,000 iters) | **741.84** | **880.25** | **1,144.76** |
 | **Set A (Sensors)** | **SGD** ($\alpha=0.01$, 50 epochs) | **539.93** | **549.47** | **714.47** |
 | **Set B (Public)** | **Normal Equation** | **2,699.92** | **2,620.94** | **3,409.50** |
 | **Set B (Public)** | **Batch GD** ($\alpha=0.1$, 2,000 iters) | **2,699.92** | **2,620.94** | **3,409.50** |
@@ -123,12 +123,12 @@ Weights learned on standardized features ($x_0 = 1$ intercept included):
 
 | Parameter Index | Feature Name | Set A Normal Eq | Set A Batch GD | Set A SGD | Physical Interpretation |
 |---|---|---|---|---|---|
-| **$\theta_0$** | **Intercept ($x_0=1$)** | **+6,890.57** | **+6,890.57** | **+6,876.12** | Mean baseline plant power across training hours |
-| **$\theta_1$** | **`irradiation`** | **+8,345.04** | **+8,345.04** | **+8,312.45** | **Primary Driver (+)**: Photovoltaic photon flux |
-| **$\theta_2$** | **`module_temp`** | **-108.12** | **-108.12** | **-104.30** | **Thermal Efficiency Drop (-)**: PV voltage loss |
-| **$\theta_3$** | **`ambient_temp`** | **-17.16** | **-17.16** | **-15.80** | Minor ambient thermal coupling |
-| **$\theta_4$** | **`sin_hour`** | **-47.38** | **-47.38** | **-42.10** | Morning/afternoon asymmetry correction |
-| **$\theta_5$** | **`cos_hour`** | **-416.56** | **-416.56** | **-410.20** | Diurnal cycle suppression at night |
+| **$\theta_0$** | **Intercept ($x_0=1$)** | **+6,890.57** | **+6,890.25** | **+6,904.65** | Mean baseline plant power across training hours |
+| **$\theta_1$** | **`irradiation`** | **+8,345.04** | **+4,928.74** | **+8,240.72** | **Primary Driver (+)**: Photovoltaic photon flux |
+| **$\theta_2$** | **`module_temp`** | **-108.12** | **+3,228.69** | **-0.17** | Thermal efficiency effect; incomplete BGD convergence changes this estimate |
+| **$\theta_3$** | **`ambient_temp`** | **-17.16** | **-382.55** | **-49.53** | Minor ambient thermal coupling |
+| **$\theta_4$** | **`sin_hour`** | **-47.38** | **+317.10** | **-74.39** | Morning/afternoon asymmetry correction |
+| **$\theta_5$** | **`cos_hour`** | **-416.56** | **-756.65** | **-423.60** | Diurnal cycle suppression at night |
 
 ---
 

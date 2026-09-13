@@ -162,8 +162,8 @@ def run_learning_rate_experiments(X_tr, y_tr):
     plt.savefig(RESULTS_DIR / "fig7_learning_rate_sgd.png")
     plt.close()
     
-    print(f"\n---> Selected BGD Alpha for rest of task: {best_bgd_alpha}")
-    print(f"---> Selected SGD Alpha for rest of task: {best_sgd_alpha}\n")
+    print(f"\n---> Best tested BGD alpha: {best_bgd_alpha}")
+    print(f"---> Selected SGD alpha for rest of task: {best_sgd_alpha}\n")
     
     return best_bgd_alpha, best_sgd_alpha
 
@@ -179,6 +179,7 @@ def main():
     
     # Run LR selection on Set A
     bgd_alpha_A, sgd_alpha_A = run_learning_rate_experiments(X_tr_A, y_tr_A)
+    print(f"---> Final BGD alpha for model training: {bgd_alpha_A}")
     bgd_alpha_B, sgd_alpha_B = 1e-1, 1e-2 # Tune or test for B
     
     # Train 6 Models

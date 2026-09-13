@@ -1,21 +1,48 @@
 # Task 5 — Analysis & Technical Report
 
+## Required Table 1 — Data Preparation
+
+| Item | Value |
+|---|---:|
+| Raw generation rows (Plant 1) | 68,778 |
+| Raw sensor rows (Plant 1) | 3,182 |
+| Timestamps present in only one file | 26 |
+| Hourly rows after resampling | 796 |
+| Hourly rows with missing values | 0 |
+| Open-Meteo weather rows downloaded | 816 |
+| Sensor/Open-Meteo irradiation correlation | 0.9333 |
+| Sensor/Open-Meteo peak hour | 12:00 / 12:00 |
+
 ## 1. Feature Weight Interpretation ($\theta$ Analysis for Set A)
 
 Using the closed-form Normal Equation on standardized features (Set A), the learned weight vector $\theta$ is:
 
 | Parameter / Feature | Variable Name | Weight ($\theta_j$) | Physical Interpretation |
 |---|---|---|---|
-| **Intercept ($\theta_0$)** | $x_0 = 1$ | **2,845.12 kW** | Baseline mean AC power output across all training hours. |
-| **Irradiation ($\theta_1$)** | `irradiation` | **+4,482.35 kW** | **Largest Positive Weight**. Directly drives photovoltaic power generation. |
-| **Module Temperature ($\theta_2$)** | `module_temp` | **-512.60 kW** | **Negative Weight**. Matches semiconductor physics: PV panel efficiency drops as cell temperature rises (Pmax temperature coefficient $\approx -0.4\%/^\circ\text{C}$). |
-| **Ambient Temperature ($\theta_3$)** | `ambient_temp` | **+84.15 kW** | Small positive adjustment, accounting for thermal radiation balance. |
-| **Sine Hour ($\theta_4$)** | `sin(2πh/24)` | **-142.30 kW** | Cyclic time correction for morning vs afternoon asymmetry. |
-| **Cosine Hour ($\theta_5$)** | `cos(2πh/24)` | **-615.40 kW** | Diurnal cycle adjustment suppressing night predictions. |
+| **Intercept ($\theta_0$)** | $x_0 = 1$ | **6,890.57 kW** | Baseline mean AC power output across all training hours. |
+| **Irradiation ($\theta_1$)** | `irradiation` | **+8,345.04 kW** | **Largest Positive Weight**. Directly drives photovoltaic power generation. |
+| **Module Temperature ($\theta_2$)** | `module_temp` | **-108.12 kW** | **Negative Weight**. Matches semiconductor physics: PV panel efficiency drops as cell temperature rises (Pmax temperature coefficient $\approx -0.4\%/^\circ\text{C}$). |
+| **Ambient Temperature ($\theta_3$)** | `ambient_temp` | **-17.16 kW** | Small adjustment accounting for thermal conditions after irradiation and module temperature are included. |
+| **Sine Hour ($\theta_4$)** | `sin(2πh/24)` | **-47.38 kW** | Cyclic time correction for morning vs afternoon asymmetry. |
+| **Cosine Hour ($\theta_5$)** | `cos(2πh/24)` | **-416.56 kW** | Diurnal cycle adjustment suppressing night predictions. |
 
 ### Physical Consistency:
-- **Irradiation** has by far the largest weight magnitude ($\theta_1 \approx +4482$). This aligns perfectly with solar physics: solar photon flux is the primary energy source.
-- **Module Temperature** has a distinct **negative coefficient** ($\theta_2 \approx -512$). High module temperatures reduce open-circuit voltage $V_{oc}$ and total power efficiency, exactly as described by PV physics.
+- **Irradiation** has by far the largest weight magnitude ($\theta_1 \approx +8345$). This aligns with solar physics: solar photon flux is the primary energy source.
+- **Module Temperature** has a distinct **negative coefficient** ($\theta_2 \approx -108$). High module temperatures reduce open-circuit voltage $V_{oc}$ and total power efficiency, exactly as described by PV physics.
+
+### Required Table 3 — Learned Weights for Set A
+
+All features are standardized using training-set statistics before fitting.
+
+| Parameter | Feature | Normal Equation | Batch GD ($\alpha=10^{-3}$) | SGD ($\alpha=0.01$) |
+|---|---|---:|---:|---:|
+| $\theta_0$ | Intercept | 6,890.57 | 6,890.25 | 6,904.65 |
+| $\theta_1$ | `irradiation` | 8,345.04 | 4,928.74 | 8,240.72 |
+| $\theta_2$ | `module_temp` | -108.12 | 3,228.69 | -0.17 |
+| $\theta_3$ | `ambient_temp` | -17.16 | -382.55 | -49.53 |
+| $\theta_4$ | `sin_hour` | -47.38 | 317.10 | -74.39 |
+| $\theta_5$ | `cos_hour` | -416.56 | -756.65 | -423.60 |
+| **Max $\lvert\theta_{\mathrm{Normal}}-\theta_{\mathrm{solver}}\rvert$** | — | — | **3,416.30** | **107.95** |
 
 ---
 
@@ -42,7 +69,7 @@ Using the closed-form Normal Equation on standardized features (Set A), the lear
 | Feature Set | Solver | Train RMSE (kW) | Test RMSE (All) | Test RMSE (Daytime) | Iterations / Epochs |
 |---|---|---|---|---|---|
 | **Set A** | **Normal Equation** | **537.62** | **539.46** | **704.46** | Analytical (Exact) |
-| **Set A** | **Batch GD** ($\alpha=0.1$) | **537.62** | **539.46** | **704.46** | 10,000 iters |
+| **Set A** | **Batch GD** ($\alpha=10^{-3}$) | **741.84** | **880.25** | **1,144.76** | 10,000 iters |
 | **Set A** | **SGD** ($\alpha=0.01$) | **539.93** | **549.47** | **714.47** | 100 epochs |
 | **Set B** | **Normal Equation** | **2,699.92** | **2,620.94** | **3,409.50** | Analytical (Exact) |
 | **Set B** | **Batch GD** ($\alpha=0.1$) | **2,699.92** | **2,620.94** | **3,409.50** | 2,000 iters |
@@ -76,7 +103,7 @@ Tested on Set A and plotted on a single figure ([`results/fig7_learning_rate_sgd
 
 ## 5. Loss Trajectory Analysis: Batch GD vs SGD
 
-- **Batch Gradient Descent ($J(\theta)$ Curve)**:
+- **Batch Gradient Descent ($J(\theta)$ Curve, $\alpha=10^{-3}$)**:
   - Decreases **smoothly and monotonically** at every single iteration.
   - Because each update uses the exact gradient averaged over the entire training set $X_{train}$, the trajectory steps directly along the steepest descent direction of $J(\theta)$.
 - **Stochastic Gradient Descent ($J(\theta)$ Curve)**:

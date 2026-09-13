@@ -74,11 +74,17 @@ python src/train_eval.py
 ```
 *Trains 6 models (Set A & B x 3 Solvers), computes test RMSE, checks convergence, and exports `results/model_weights.json`.*
 
-### Step 5: Launch Web App Interface (Task 6)
+### Step 5: Review Analysis (Task 5)
+
+Read [`results/analysis.md`](results/analysis.md) for the required data-preparation table, RMSE comparison, learned-weight table, learning-rate analysis, solver discussion, and residual interpretation.
+
+### Step 6: Launch Web App Interface (Task 6)
 ```bash
 python app/server.py
 ```
 Open your browser at **`http://localhost:8000`** to interact with the web app!
+
+![SolarCast web application](results/app_screenshot.png)
 
 ---
 
@@ -87,7 +93,7 @@ Open your browser at **`http://localhost:8000`** to interact with the web app!
 | Feature Set | Solver | Train RMSE (kW) | Test RMSE (All 168h) | Test RMSE (Daytime) |
 |---|---|---|---|---|
 | **Set A (Sensors)** | **Normal Equation** | **537.62** | **539.46** | **704.46** |
-| **Set A (Sensors)** | **Batch GD** ($\alpha=0.1$) | **537.63** | **540.04** | **705.20** |
+| **Set A (Sensors)** | **Batch GD** ($\alpha=10^{-3}$) | **741.84** | **880.25** | **1,144.76** |
 | **Set A (Sensors)** | **SGD** ($\alpha=0.01$) | **539.93** | **549.47** | **714.47** |
 | **Set B (Public)** | **Normal Equation** | **2,699.92** | **2,620.94** | **3,409.50** |
 | **Set B (Public)** | **Batch GD** ($\alpha=0.1$) | **2,699.92** | **2,620.94** | **3,409.50** |
@@ -98,7 +104,7 @@ Open your browser at **`http://localhost:8000`** to interact with the web app!
 ## 💡 Key Findings & Physics Insights
 1. **On-Site Sensors (Set A) achieve ~2.35% error** relative to peak plant capacity (~30 MW), compared to **~11.36% error for public weather data (Set B)**.
 2. **Module Temperature is Critical**: Panel efficiency drops as module temperature rises ($\theta_{\text{module\_temp}} \approx -108$).
-3. **Solver Equivalence**: Batch GD with $\alpha=0.1$ converges directly to the Normal Equation solution ($\max |\theta_{\text{Normal}} - \theta_{\text{BatchGD}}| < 17$).
+3. **Solver Comparison**: With $\alpha=10^{-3}$ and 10,000 iterations, Batch GD is stable but has not fully converged to the Normal Equation solution; a smaller learning rate requires more iterations to reach the same optimum.
 
 ---
 

@@ -38,7 +38,7 @@ Chronological split: Train (May 15 – June 10, 628h) vs Test (June 11 – June 
 | Feature Set | Solver Method | Train RMSE | Test RMSE (All 168h) | Test RMSE (Daytime Only) | Relative Error % |
 |---|---|---|---|---|---|
 | **Set A (On-Site Sensors)** | **Normal Equation** | **537.62 kW** | **539.46 kW** | **704.46 kW** | **2.35%** |
-| **Set A (On-Site Sensors)** | **Batch GD** ($\alpha=0.001$, 500 iters) | **741.84 kW** | **880.25 kW** | **1,144.76 kW** | **3.82%** |
+| **Set A (On-Site Sensors)** | **Batch GD** ($\alpha=0.001$, 10,000 iters) | **741.84 kW** | **880.25 kW** | **1,144.76 kW** | **3.82%** |
 | **Set A (On-Site Sensors)** | **SGD** ($\alpha=0.01$, 50 epochs) | **539.93 kW** | **549.47 kW** | **714.47 kW** | **2.38%** |
 | **Set B (Public Weather)** | **Normal Equation** | **2,699.92 kW** | **2,620.94 kW** | **3,409.50 kW** | **11.36%** |
 | **Set B (Public Weather)** | **Batch GD** ($\alpha=0.1$, 2,000 iters) | **2,699.92 kW** | **2,620.94 kW** | **3,409.50 kW** | **11.36%** |
@@ -64,5 +64,5 @@ Standardized features ($x_0 = 1$ intercept included):
 ### 5. Technical Insights & Conclusions
 1. **On-Site Sensors achieve ~2.35% daytime error**, compared to **~11.36% error for public weather data** (nearly 4x higher RMSE).
 2. **Key Physical Drivers**: Solar irradiance dominates generation ($\theta_1 = +8345$), while module temperature exhibits a clear thermal penalty ($\theta_2 = -108.12$).
-3. **Solver Equivalence**: Analytical Normal Equation provides exact global minimum parameters instantaneously ($<1$ ms) for $m \approx 800$.
-4. **Web Predictor**: Model weights exported to an interactive web dashboard (`app/index.html`) with real-time Z-score scaling and diode output clipping ($\max(\hat{y}, 0)$).
+3. **Solver Comparison**: Analytical Normal Equation provides exact global minimum parameters instantaneously ($<1$ ms) for $m \approx 800$; Batch GD with $\alpha=0.001$ is stable but has not fully converged after 10,000 iterations.
+4. **Web Predictor**: Model weights exported to an interactive web dashboard (`app/index.html`) with real-time Z-score scaling and negative-output clipping ($\max(\hat{y}, 0)$).

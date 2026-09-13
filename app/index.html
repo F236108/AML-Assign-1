@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolarCast | Plant 1 Generation Forecasting Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+            
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            
+            --amber-500: #f59e0b;
+            --amber-600: #d97706;
+            --amber-50: #fffbeb;
+            --amber-100: #fef3c7;
+            
+            --emerald-600: #059669;
+            --emerald-50: #ecfdf5;
+            
+            --radius-main: 12px;
+            --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--slate-900);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar Header */
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--slate-200);
+            padding: 0.85rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--slate-900);
+            color: #ffffff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .brand-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--slate-900);
+            letter-spacing: -0.01em;
+        }
+
+        .brand-subtitle {
+            font-size: 0.8rem;
+            color: var(--slate-500);
+            font-weight: 400;
+        }
+
+        .nav-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .location-tag {
+            font-size: 0.82rem;
+            color: var(--slate-600);
+            background: var(--slate-100);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--slate-200);
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--emerald-600);
+            background: var(--emerald-50);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--emerald-600);
+            border-radius: 50%;
+        }
+
+        /* Main Workspace Layout */
+        .workspace {
+            max-width: 1280px;
+            width: 100%;
+            margin: 1.75rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Professional Component Cards */
+        .panel-card {
+            background: #ffffff;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-main);
+            box-shadow: var(--shadow-subtle);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--slate-100);
+            padding-bottom: 0.85rem;
+        }
+
+        .panel-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--slate-800);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* Segmented Control Selector */
+        .segmented-control {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--slate-100);
+            padding: 3px;
+            border-radius: 8px;
+            gap: 2px;
+        }
+
+        .segment-btn {
+            border: none;
+            background: transparent;
+            padding: 0.55rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--slate-600);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .segment-btn.active {
+            background: #ffffff;
+            color: var(--slate-900);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Scenario Preset Bar */
+        .preset-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.4rem;
+        }
+
+        .btn-preset {
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            border-radius: 6px;
+            padding: 0.45rem 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--slate-700);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-preset:hover {
+            background: var(--slate-100);
+            border-color: var(--slate-300);
+            color: var(--slate-900);
+        }
+
+        /* Input Controls */
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .field-label-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+        }
+
+        .field-label {
+            font-weight: 600;
+            color: var(--slate-700);
+        }
+
+        .field-value-display {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--blue-600);
+            background: var(--blue-50);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--blue-100);
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--slate-200);
+            outline: none;
+            cursor: pointer;
+            accent-color: var(--blue-600);
+        }
+
+        input[type="number"] {
+            width: 75px;
+            padding: 0.35rem 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--slate-800);
+            border: 1px solid var(--slate-300);
+            border-radius: 6px;
+            outline: none;
+            text-align: right;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--blue-600);
+            box-shadow: 0 0 0 2px var(--blue-100);
+        }
+
+        /* Analytics Dashboard Right Side */
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* KPI Metric Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .kpi-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .kpi-card {
+            background: #ffffff;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-main);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .kpi-card.featured {
+            border-color: #bfdbfe;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+        }
+
+        .kpi-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--slate-500);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .kpi-value {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--slate-900);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .kpi-sub {
+            font-size: 0.8rem;
+            color: var(--slate-600);
+            font-weight: 500;
+        }
+
+        /* Chart Canvas Area */
+        .chart-card {
+            background: #ffffff;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-main);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--slate-800);
+        }
+
+        .chart-legend {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.78rem;
+            color: var(--slate-600);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* SVG Chart */
+        .svg-chart-container {
+            width: 100%;
+            height: 180px;
+            position: relative;
+        }
+
+        svg.diurnal-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        /* Capacity Progress Bar */
+        .progress-bar-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: var(--slate-100);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--slate-200);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--blue-600);
+            border-radius: 4px;
+            transition: width 0.25s ease-out;
+        }
+
+        /* Model Spec Table / Collapsible Details */
+        .details-card {
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-main);
+            padding: 1.25rem;
+            font-size: 0.82rem;
+            color: var(--slate-700);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .table-spec {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.35rem;
+        }
+
+        .table-spec th, .table-spec td {
+            padding: 0.4rem 0.6rem;
+            text-align: left;
+            border-bottom: 1px solid var(--slate-200);
+        }
+
+        .table-spec th {
+            font-weight: 600;
+            color: var(--slate-500);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .table-spec td {
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            color: var(--slate-800);
+        }
+
+        footer {
+            margin-top: auto;
+            border-top: 1px solid var(--slate-200);
+            background: #ffffff;
+            padding: 1rem 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--slate-500);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Professional Top Navigation Header -->
+    <header class="navbar">
+        <div class="brand-group">
+            <div class="brand-icon">PV</div>
+            <div>
+                <div class="brand-title">Solar Power Generation Forecasting</div>
+                <div class="brand-subtitle">Plant 1 Analysis • Gandikota, Andhra Pradesh (14.82°N, 78.28°E)</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+
+        <!-- Control Panel Left Side -->
+        <section class="panel-card">
+            <div class="panel-header">
+                <span class="panel-title">Model Input Parameters</span>
+            </div>
+
+            <!-- Segmented Model Selector -->
+            <div class="segmented-control">
+                <button class="segment-btn active" id="segSetB" onclick="setFeatureSet('Set_B_Normal')">
+                    Public Weather (Set B)
+                </button>
+                <button class="segment-btn" id="segSetA" onclick="setFeatureSet('Set_A_Normal')">
+                    On-Site Sensors (Set A)
+                </button>
+            </div>
+
+            <!-- Quick Presets -->
+            <div class="field-group">
+                <div class="field-label-bar">
+                    <span class="field-label">Reference Scenarios</span>
+                </div>
+                <div class="preset-bar">
+                    <button class="btn-preset" onclick="loadScenario('noon')">Solar Noon</button>
+                    <button class="btn-preset" onclick="loadScenario('cloudy')">Overcast</button>
+                    <button class="btn-preset" onclick="loadScenario('morning')">Morning</button>
+                    <button class="btn-preset" onclick="loadScenario('night')">Night</button>
+                </div>
+            </div>
+
+            <!-- Hour Selector -->
+            <div class="field-group">
+                <div class="field-label-bar">
+                    <span class="field-label">Hour of Day (24-Hour Cycle)</span>
+                    <span class="field-value-display" id="valHourText">12:00 (Solar Noon)</span>
+                </div>
+                <div class="input-row">
+                    <input type="range" id="sliderHour" min="0" max="23" value="12" oninput="syncHourInput(this.value)">
+                    <input type="number" id="numHour" min="0" max="23" value="12" oninput="syncHourInput(this.value)">
+                </div>
+            </div>
+
+            <!-- Set B Inputs (Public Weather) -->
+            <div id="controlsSetB" style="display: flex; flex-direction: column; gap: 1.1rem;">
+                <div class="field-group">
+                    <div class="field-label-bar">
+                        <span class="field-label">Shortwave Radiation (W/m²)</span>
+                        <span class="field-value-display" id="valSw">800.0 W/m²</span>
+                    </div>
+                    <div class="input-row">
+                        <input type="range" id="sliderSw" min="0" max="1100" value="800" oninput="syncInput('Sw', this.value)">
+                        <input type="number" id="numSw" min="0" max="1100" value="800" oninput="syncInput('Sw', this.value)">
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-label-bar">
+                        <span class="field-label">2m Air Temperature (°C)</span>
+                        <span class="field-value-display" id="valTemp2m">35.0 °C</span>
+                    </div>
+                    <div class="input-row">
+                        <input type="range" id="sliderTemp2m" min="10" max="48" value="35" step="0.5" oninput="syncInput('Temp2m', this.value)">
+                        <input type="number" id="numTemp2m" min="10" max="48" value="35" step="0.5" oninput="syncInput('Temp2m', this.value)">
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-label-bar">
+                        <span class="field-label">Cloud Cover (%)</span>
+                        <span class="field-value-display" id="valCloud">10.0 %</span>
+                    </div>
+                    <div class="input-row">
+                        <input type="range" id="sliderCloud" min="0" max="100" value="10" oninput="syncInput('Cloud', this.value)">
+                        <input type="number" id="numCloud" min="0" max="100" value="10" oninput="syncInput('Cloud', this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Set A Inputs (On-Site Sensors) -->
+            <div id="controlsSetA" style="display: none; flex-direction: column; gap: 1.1rem;">
+                <div class="field-group">
+                    <div class="field-label-bar">
+                        <span class="field-label">Sensor Solar Irradiation (kW/m²)</span>
+                        <span class="field-value-display" id="valIrrad">0.80 kW/m²</span>
+                    </div>
+                    <div class="input-row">
+                        <input type="range" id="sliderIrrad" min="0" max="1.2" value="0.8" step="0.01" oninput="syncInput('Irrad', this.value)">
+                        <input type="number" id="numIrrad" min="0" max="1.2" value="0.8" step="0.01" oninput="syncInput('Irrad', this.value)">
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-label-bar">
+                        <span class="field-label">PV Module Temperature (°C)</span>
+                        <span class="field-value-display" id="valModTemp">48.0 °C</span>
+                    </div>
+                    <div class="input-row">
+                        <input type="range" id="sliderModTemp" min="15" max="75" value="48" step="0.5" oninput="syncInput('ModTemp', this.value)">
+                        <input type="number" id="numModTemp" min="15" max="75" value="48" step="0.5" oninput="syncInput('ModTemp', this.value)">
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-label-bar">
+                        <span class="field-label">Ambient Air Temperature (°C)</span>
+                        <span class="field-value-display" id="valAmbTemp">32.0 °C</span>
+                    </div>
+                    <div class="input-row">
+                        <input type="range" id="sliderAmbTemp" min="15" max="48" value="32" step="0.5" oninput="syncInput('AmbTemp', this.value)">
+                        <input type="number" id="numAmbTemp" min="15" max="48" value="32" step="0.5" oninput="syncInput('AmbTemp', this.value)">
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Side: Analytics Dashboard -->
+        <section class="dashboard-grid">
+
+            <!-- KPI Metric Cards -->
+            <div class="kpi-row">
+                <div class="kpi-card featured">
+                    <div class="kpi-label">Predicted AC Power</div>
+                    <div class="kpi-value" id="kpiAcPower">14,250 kW</div>
+                    <div class="kpi-sub" id="kpiMwPower">14.25 MW Active</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Capacity Utilization</div>
+                    <div class="kpi-value" id="kpiUtilPct">57.0%</div>
+                    <div class="kpi-sub">Ref. Peak 25.0 MW</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-track">
+                            <div class="progress-fill" id="progressCap"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Model Configuration</div>
+                    <div class="kpi-value" style="font-size: 1.3rem; margin-top: 0.2rem;" id="kpiModelSet">Set B (Public)</div>
+                    <div class="kpi-sub">Z-Score Standardized</div>
+                </div>
+            </div>
+
+            <!-- Diurnal Profile Chart Card -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">Estimated Diurnal Generation Profile</span>
+                    <div class="chart-legend">
+                        <span class="legend-item"><span class="legend-dot" style="background: var(--blue-600);"></span> Hourly Trend</span>
+                        <span class="legend-item"><span class="legend-dot" style="background: var(--amber-500);"></span> Selected Hour Cursor</span>
+                    </div>
+                </div>
+
+                <div class="svg-chart-container">
+                    <svg class="diurnal-svg" id="diurnalSvg" viewBox="0 0 600 180" preserveAspectRatio="none">
+                        <!-- SVG area & paths injected via JS -->
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Model Parameters & Z-Score Table -->
+            <div class="details-card">
+                <div style="font-weight: 700; color: var(--slate-900); font-size: 0.88rem;">
+                    Feature Transformation & Weight Vector Breakdown
+                </div>
+                <p>Features are standardized using training set statistics: <code>z_j = (x_j - μ_j) / σ_j</code>. Intercept term <code>x_0 = 1.0</code> is prepended.</p>
+
+                <table class="table-spec">
+                    <thead>
+                        <tr>
+                            <th>Feature Name</th>
+                            <th>Raw Value (x_j)</th>
+                            <th>Mean (μ_j)</th>
+                            <th>Std (σ_j)</th>
+                            <th>Z-Score (z_j)</th>
+                            <th>Weight (θ_j)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableSpecsBody">
+                        <!-- Table rows injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        SolarCast Applied Machine Learning Engine • Plant 1 Generation Forecasting • Strictly NumPy Linear Regression from Scratch
+    </footer>
+
+    <script>
+        // Exact model parameters trained from scratch in train_eval.py
+        const MODEL_SPECS = {
+            "Set_B_Normal": {
+                name: "Set B (Public Weather)",
+                features: ["Intercept", "sw_radiation", "temp_2m", "cloud_cover", "sin_hour", "cos_hour"],
+                featureLabels: ["x0 Intercept", "Shortwave Rad", "Air Temp 2m", "Cloud Cover", "Sin(Hour)", "Cos(Hour)"],
+                units: ["", "W/m²", "°C", "%", "", ""],
+                theta: [6890.57, 6557.74, -207.47, 222.82, 374.06, -1899.21],
+                mean: [0.0, 254.17, 33.08, 68.66, -0.00838, -0.01659],
+                std: [1.0, 318.44, 4.10, 34.13, 0.70964, 0.70432]
+            },
+            "Set_A_Normal": {
+                name: "Set A (On-Site Sensors)",
+                features: ["Intercept", "irradiation", "module_temp", "ambient_temp", "sin_hour", "cos_hour"],
+                featureLabels: ["x0 Intercept", "Irradiation", "Module Temp", "Ambient Temp", "Sin(Hour)", "Cos(Hour)"],
+                units: ["", "kW/m²", "°C", "°C", "", ""],
+                theta: [6890.57, 8345.04, -108.12, -17.16, -47.38, -416.56],
+                mean: [0.0, 0.2386, 31.73, 25.84, -0.00838, -0.01659],
+                std: [1.0, 0.3023, 12.63, 3.50, 0.70964, 0.70432]
+            }
+        };
+
+        const MAX_CAPACITY_KW = 25000;
+        let currentSet = "Set_B_Normal";
+
+        function setFeatureSet(setKey) {
+            currentSet = setKey;
+            document.getElementById('segSetB').classList.toggle('active', setKey === 'Set_B_Normal');
+            document.getElementById('segSetA').classList.toggle('active', setKey === 'Set_A_Normal');
+
+            document.getElementById('controlsSetB').style.display = (setKey === 'Set_B_Normal') ? 'flex' : 'none';
+            document.getElementById('controlsSetA').style.display = (setKey === 'Set_A_Normal') ? 'flex' : 'none';
+
+            document.getElementById('kpiModelSet').innerText = setKey === 'Set_B_Normal' ? 'Set B (Public)' : 'Set A (Sensor)';
+
+            recalculate();
+        }
+
+        function syncHourInput(val) {
+            val = Math.max(0, Math.min(23, parseInt(val) || 0));
+            document.getElementById('sliderHour').value = val;
+            document.getElementById('numHour').value = val;
+
+            const hText = val === 0 ? "00:00 (Midnight)" :
+                          val < 12 ? `${val.toString().padStart(2, '0')}:00 AM` :
+                          val === 12 ? "12:00 (Solar Noon)" : `${(val-12).toString().padStart(2, '0')}:00 PM`;
+            document.getElementById('valHourText').innerText = hText;
+
+            recalculate();
+        }
+
+        function syncInput(param, val) {
+            val = parseFloat(val) || 0;
+            document.getElementById(`slider${param}`).value = val;
+            document.getElementById(`num${param}`).value = val;
+
+            const unitMap = {
+                'Sw': 'W/m²', 'Temp2m': '°C', 'Cloud': '%',
+                'Irrad': 'kW/m²', 'ModTemp': '°C', 'AmbTemp': '°C'
+            };
+            const fmtVal = (param === 'Irrad') ? val.toFixed(2) : (param.includes('Temp') ? val.toFixed(1) : val.toFixed(0));
+            document.getElementById(`val${param}`).innerText = `${fmtVal} ${unitMap[param]}`;
+
+            recalculate();
+        }
+
+        function loadScenario(type) {
+            if (type === 'noon') {
+                syncHourInput(12);
+                syncInput('Sw', 850); syncInput('Temp2m', 36); syncInput('Cloud', 5);
+                syncInput('Irrad', 0.85); syncInput('ModTemp', 52); syncInput('AmbTemp', 34);
+            } else if (type === 'cloudy') {
+                syncHourInput(14);
+                syncInput('Sw', 320); syncInput('Temp2m', 31); syncInput('Cloud', 80);
+                syncInput('Irrad', 0.32); syncInput('ModTemp', 36); syncInput('AmbTemp', 30);
+            } else if (type === 'morning') {
+                syncHourInput(8);
+                syncInput('Sw', 250); syncInput('Temp2m', 25); syncInput('Cloud', 15);
+                syncInput('Irrad', 0.25); syncInput('ModTemp', 29); syncInput('AmbTemp', 24);
+            } else if (type === 'night') {
+                syncHourInput(22);
+                syncInput('Sw', 0); syncInput('Temp2m', 23); syncInput('Cloud', 0);
+                syncInput('Irrad', 0); syncInput('ModTemp', 21); syncInput('AmbTemp', 23);
+            }
+        }
+
+        function drawSvgChart(currentHour, currentPower) {
+            const svg = document.getElementById('diurnalSvg');
+            const width = 600;
+            const height = 180;
+
+            // Compute curve points for 24 hours
+            let points = [];
+            for (let h = 0; h <= 23; h++) {
+                let factor = 0;
+                if (h >= 6 && h <= 18) {
+                    factor = Math.sin(Math.PI * (h - 6) / 12);
+                }
+                const x = (h / 23) * (width - 40) + 20;
+                // Normalize power scale
+                const pVal = (h === currentHour) ? currentPower : (factor * 18000);
+                const y = height - 25 - (pVal / MAX_CAPACITY_KW) * (height - 40);
+                points.push({x, y, h, pVal});
+            }
+
+            // Path string
+            let pathD = `M ${points[0].x} ${points[0].y}`;
+            for (let i = 1; i < points.length; i++) {
+                pathD += ` L ${points[i].x} ${points[i].y}`;
+            }
+
+            const areaD = pathD + ` L ${points[points.length-1].x} ${height - 25} L ${points[0].x} ${height - 25} Z`;
+
+            // Active hour cursor position
+            const curPt = points[currentHour];
+
+            svg.innerHTML = `
+                <!-- Grid Lines -->
+                <line x1="20" y1="20" x2="580" y2="20" stroke="#f1f5f9" stroke-dasharray="4"/>
+                <line x1="20" y1="80" x2="580" y2="80" stroke="#f1f5f9" stroke-dasharray="4"/>
+                <line x1="20" y1="140" x2="580" y2="140" stroke="#e2e8f0"/>
+
+                <!-- Area Fill -->
+                <path d="${areaD}" fill="url(#blueGrad)" opacity="0.15"/>
+                <!-- Trend Line -->
+                <path d="${pathD}" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+
+                <!-- Cursor Vertical Line -->
+                <line x1="${curPt.x}" y1="10" x2="${curPt.x}" y2="155" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3"/>
+
+                <!-- Selected Hour Node Circle -->
+                <circle cx="${curPt.x}" cy="${curPt.y}" r="6" fill="#f59e0b" stroke="#ffffff" stroke-width="2"/>
+
+                <!-- X Axis Hour Labels -->
+                <text x="20" y="172" font-size="10" fill="#94a3b8">00h</text>
+                <text x="160" y="172" font-size="10" fill="#94a3b8">06h</text>
+                <text x="300" y="172" font-size="10" fill="#94a3b8">12h Noon</text>
+                <text x="440" y="172" font-size="10" fill="#94a3b8">18h</text>
+                <text x="560" y="172" font-size="10" fill="#94a3b8">23h</text>
+
+                <!-- Gradient Definition -->
+                <defs>
+                    <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#2563eb"/>
+                        <stop offset="100%" stop-color="#ffffff"/>
+                    </linearGradient>
+                </defs>
+            `;
+        }
+
+        function recalculate() {
+            const spec = MODEL_SPECS[currentSet];
+            const hour = parseInt(document.getElementById('sliderHour').value);
+
+            const sinH = Math.sin(2.0 * Math.PI * hour / 24.0);
+            const cosH = Math.cos(2.0 * Math.PI * hour / 24.0);
+
+            let rawVals = [1.0]; // x0 intercept
+
+            if (currentSet === 'Set_B_Normal') {
+                const sw = parseFloat(document.getElementById('sliderSw').value);
+                const temp2m = parseFloat(document.getElementById('sliderTemp2m').value);
+                const cloud = parseFloat(document.getElementById('sliderCloud').value);
+                rawVals.push(sw, temp2m, cloud, sinH, cosH);
+            } else {
+                const irrad = parseFloat(document.getElementById('sliderIrrad').value);
+                const modTemp = parseFloat(document.getElementById('sliderModTemp').value);
+                const ambTemp = parseFloat(document.getElementById('sliderAmbTemp').value);
+                rawVals.push(irrad, modTemp, ambTemp, sinH, cosH);
+            }
+
+            // Standardize features & compute dot product
+            let zScores = [1.0];
+            let rawPred = spec.theta[0];
+
+            let tableHtml = `
+                <tr>
+                    <td>${spec.featureLabels[0]}</td>
+                    <td>1.00</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td>1.000</td>
+                    <td>${spec.theta[0].toFixed(2)}</td>
+                </tr>
+            `;
+
+            for (let j = 1; j < rawVals.length; j++) {
+                const z = (rawVals[j] - spec.mean[j]) / spec.std[j];
+                zScores.push(z);
+                rawPred += spec.theta[j] * z;
+
+                tableHtml += `
+                    <tr>
+                        <td>${spec.featureLabels[j]}</td>
+                        <td>${rawVals[j].toFixed(2)} ${spec.units[j]}</td>
+                        <td>${spec.mean[j].toFixed(2)}</td>
+                        <td>${spec.std[j].toFixed(2)}</td>
+                        <td>${z.toFixed(3)}</td>
+                        <td>${spec.theta[j].toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+
+            document.getElementById('tableSpecsBody').innerHTML = tableHtml;
+
+            // Clip negative values to zero
+            const finalPower = Math.max(rawPred, 0.0);
+
+            // Update KPI Displays
+            document.getElementById('kpiAcPower').innerText = `${Math.round(finalPower).toLocaleString()} kW`;
+            document.getElementById('kpiMwPower').innerText = `${(finalPower / 1000).toFixed(2)} MW Active Generation`;
+
+            const utilPct = Math.min((finalPower / MAX_CAPACITY_KW) * 100, 100).toFixed(1);
+            document.getElementById('kpiUtilPct').innerText = `${utilPct}%`;
+            document.getElementById('progressCap').style.width = `${utilPct}%`;
+
+            // Draw SVG Chart
+            drawSvgChart(hour, finalPower);
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            recalculate();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+Feature Set,Solver,Train RMSE,Test RMSE All,Test RMSE Daytime
+Set A,Normal Eq,537.62,539.46,704.46
+Set A,Batch GD,741.84,880.25,1144.76
+Set A,SGD,539.93,549.47,714.47
+Set B,Normal Eq,2699.92,2620.94,3409.5
+Set B,Batch GD,2699.92,2620.94,3409.5
+Set B,SGD,2744.92,2699.92,3453.25

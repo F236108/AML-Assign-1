@@ -43,15 +43,17 @@ We analyze 34 days of continuous generation and weather data (May 15, 2020 – J
 
 Before modeling, we explored the physical relationships across solar generation and meteorological variables.
 
-````carousel
-![AC Power vs Irradiation](file:///c:/Users/Stranger/OneDrive/Documents/AML%20Assign-1/results/fig1_ac_vs_irradiation.png)
-<!-- slide -->
-![Module Temp vs Ambient Temp](file:///c:/Users/Stranger/OneDrive/Documents/AML%20Assign-1/results/fig2_module_vs_ambient.png)
-<!-- slide -->
-![AC Power vs DC Power Ratio](file:///c:/Users/Stranger/OneDrive/Documents/AML%20Assign-1/results/fig3_ac_vs_dc.png)
-<!-- slide -->
-![Average AC Power by Hour of Day](file:///c:/Users/Stranger/OneDrive/Documents/AML%20Assign-1/results/fig4_avg_power_by_hour.png)
-````
+![AC Power vs Irradiation](fig1_ac_vs_irradiation.png)
+*Figure 1: AC Power vs. Irradiation scatter plot.*
+
+![Module Temp vs Ambient Temp](fig2_module_vs_ambient.png)
+*Figure 2: PV Module Temperature vs. Ambient Air Temperature (colored by irradiation).*
+
+![AC Power vs DC Power Ratio](fig3_ac_vs_dc.png)
+*Figure 3: AC Power vs. DC Power linear conversion ratio (Inverter efficiency $\approx 0.098$).*
+
+![Average AC Power by Hour of Day](fig4_avg_power_by_hour.png)
+*Figure 4: Mean AC Power by hour of day (diurnal bell curve peaking at solar noon).*
 
 ### Key EDA Insights:
 1. **Linear Photovoltaic Response**: AC power shows a strong linear correlation with solar irradiance ($r > 0.95$).
@@ -65,7 +67,8 @@ Before modeling, we explored the physical relationships across solar generation 
 
 To verify the geographical coordinates of Plant 1 (Lat 14.82°N, Lon 78.28°E), we downloaded historical ERA5 reanalysis weather data from the **Open-Meteo Historical Weather API** and compared on-site sensor irradiance (`irradiation`) against satellite-derived shortwave radiation (`sw_radiation`).
 
-![Location Verification Plot](file:///c:/Users/Stranger/OneDrive/Documents/AML%20Assign-1/results/fig5_weather_verification.png)
+![Location Verification Plot](fig5_weather_verification.png)
+*Figure 5: 3-day location verification comparison (Sensor Irradiation vs. Open-Meteo Shortwave Radiation).*
 
 ### Verification Findings:
 - The correlation between on-site sensor irradiation and Open-Meteo shortwave radiation reached **0.9333**, confirming exact spatial alignment.
@@ -90,11 +93,11 @@ All algorithms were implemented **from scratch using NumPy matrix operations**:
 
 ### Learning Rate Selection ($\alpha$ Tuning on Set A):
 
-````carousel
-![Batch GD Learning Rates](file:///c:/Users/Stranger/OneDrive/Documents/AML%20Assign-1/results/fig6_learning_rate_batch_gd.png)
-<!-- slide -->
-![SGD Learning Rates](file:///c:/Users/Stranger/OneDrive/Documents/AML%20Assign-1/results/fig7_learning_rate_sgd.png)
-````
+![Batch GD Learning Rates](fig6_learning_rate_batch_gd.png)
+*Figure 6: Batch GD Cost $J(\theta)$ vs. Iteration for $\alpha \in \{10^{-5}, 10^{-4}, 10^{-3}\}$.*
+
+![SGD Learning Rates](fig7_learning_rate_sgd.png)
+*Figure 7: SGD Cost $J(\theta)$ vs. Epoch for $\alpha \in \{10^{-4}, 10^{-3}, 10^{-2}\}$.*
 
 - **Batch GD ($\alpha \in \{10^{-5}, 10^{-4}, 10^{-3}\}$, 500 iterations)**: $\alpha = 10^{-5}$ and $10^{-4}$ are **too small** (slow convergence). $\alpha = 10^{-3}$ is **about right**, reducing cost $J(\theta)$ by >84% in 500 iterations.
 - **SGD ($\alpha \in \{10^{-4}, 10^{-3}, 10^{-2}\}$, 50 epochs)**: $\alpha = 10^{-4}$ is **too small**, whereas $\alpha = 10^{-2}$ is **about right**, rapidly reaching global minimum cost.
@@ -137,7 +140,8 @@ Weights learned on standardized features ($x_0 = 1$ intercept included):
 - **Absolute Daytime Difference ($\Delta$)**: **2,705.04 kW**
 - **Relative Difference**: Public weather data incurs **9.01% higher error** as a fraction of peak plant power, or **+384% higher RMSE**.
 
-![Actual vs Predicted Test Week](file:///c:/Users/Stranger/OneDrive/Documents/AML%20Assign-1/results/fig9_actual_vs_predicted.png)
+![Actual vs Predicted Test Week](fig9_actual_vs_predicted.png)
+*Figure 8: Actual vs. Predicted AC Power across the 7-day test week (June 11–17, 2020).*
 
 ### Physical Causes of Performance Degradation in Set B:
 1. **Coarse Spatial Resolution & Local Clouds**: Open-Meteo relies on satellite reanalysis grids (~10 km resolution). Sudden local cloud shadows passing over the plant are missed by satellite grids.
@@ -149,7 +153,8 @@ Weights learned on standardized features ($x_0 = 1$ intercept included):
 
 Analyzing the model residuals ($y - \hat{y}$) across hours of the day:
 
-![Residuals vs Hour of Day](file:///c:/Users/Stranger/OneDrive/Documents/AML%20Assign-1/results/fig8_residuals_by_hour.png)
+![Residuals vs Hour of Day](fig8_residuals_by_hour.png)
+*Figure 9: Residuals ($y - \hat{y}$) vs. Hour of Day for Set A Normal Equation.*
 
 ### Diagnostics Findings:
 - **Nighttime (19:00 – 05:00)**: Residuals are identically zero due to post-processing ReLU clipping ($\max(\hat{y}, 0)$).
